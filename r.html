@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>เว็บเช็คชื่อเข้างาน</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <style>
+    /* CSS อื่นๆ */
+    /* ... */
+    
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="https://cdn.discordapp.com/attachments/1124523753804669009/1124647602529509426/th.png" alt="Logo">
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html"><img src="https://cdn.onlinewebfonts.com/svg/img_67168.png" alt="Home"></a></li>
+        <li><a href="r.html"><img src="https://vectorified.com/images/profile-picture-icon-27.png" alt="Check-in"></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div id="check-in-page">
+      <form id="check-in-form">
+        <input type="text" id="name" placeholder="ชื่อ">
+        <input type="text" id="registration" placeholder="เลขทะเบียน">
+        <button type="submit">ส่ง</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>@2023 สถานบันการแพทย์แห่งชาติ</p>
+  </footer>
+
+  <script>
+    document.getElementById("check-in-form").addEventListener("submit", function(event) {
+      event.preventDefault(); // ป้องกันการโหลดหน้าใหม่หลังกด Submit
+
+      // อ่านค่าที่กรอกในฟอร์ม
+      var name = document.getElementById("name").value;
+      var registration = document.getElementById("registration").value;
+
+      // ส่งข้อมูลไปยัง webhook Discord
+      var data = {
+        name: name,
+        registration: registration
+      };
+      sendToDiscordWebhook(data);
+
+      // แสดงป๊อปอัปเมื่อเช็คชื่อสำเร็จ
+      showSuccessPopup();
+    });
+
+    function sendToDiscordWebhook(data) {
+      // URL ของ webhook Discord
+      const webhookURL = "https://discord.com/api/webhooks/1124652976116613200/kuf46qQSU273GRsZUTE1uoJqytoC3FMQrGr0kP56W7QWwNXEXQV_LAoVZYEMt0bm_kx2";
+
+      // ข้อมูลที่ต้องการส่งไปยัง webhook
+      const payload = {
+        content: `
+          เช็คชื่อเข้าทำงาน
+          ชื่อ: ${data.name}
+          ทะเบียน: ${data.registration}
+          เวลาที่ผู้ใช้กรอกข้อมูล: ${new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" })}
+        `
+      };
+
+      // ส่งข้อมูลไปยัง webhook Discord
+      sendDataToDiscordWebhook(webhookURL, payload);
+    }
+
+    function sendDataToDiscordWebhook(webhookURL, payload) {
+      // ส่งข้อมูลไปยัง webhook Discord ที่กำหนด
+      fetch(webhookURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log("ส่งข้อมูลสำเร็จแล้ว");
+        } else {
+          console.error("เกิดข้อผิดพลาดในการส่งข้อมูล");
+        }
+      })
+      .catch(error => {
+        console.error("เกิดข้อผิดพลาดในการส่งข้อมูล", error);
+      });
+    }
+
+    function showSuccessPopup() {
+      // สร้างป๊อปอัปสำหรับแสดงผลเมื่อเช็คชื่อสำเร็จ
+      var popup = document.createElement("div");
+      popup.className = "popup";
+      popup.innerHTML = `
+        <img src="http://cdn.onlinewebfonts.com/svg/img_384101.png" alt="Success">
+        <p>เช็คชื่อเข้างานสำเร็จ</p>
+      `;
+      document.body.appendChild(popup);
+
+      // หากต้องการให้ป๊อปอัปหายอัตโนมัติหลังจากเวลาที่กำหนด (เช่น 3 วินาที)
+      setTimeout(function() {
+        popup.remove();
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
